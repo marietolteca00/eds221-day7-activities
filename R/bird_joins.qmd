@@ -1,0 +1,24 @@
+---
+title: "bird_joins"
+format: html
+---
+## Load Libraries
+```{r}
+library(tidyverse)
+library(here)
+
+```
+## Read in data csv
+```{r}
+bird_observations <- read_csv(here("data","52_pp52_birds_1.csv"))
+sites <- read_csv(here("data","52_pp52_sites_1.csv"))
+surveys <- read_csv(here("data","52_pp52_surveys_1.csv")) 
+taxalist <- read_csv(here("data","52_pp52_taxalist_1.csv"))
+```
+
+# Create a subset of bird_observations called birds_subset that only contains observations for birds with species id “BHCO” and “RWBL”, and from sites with site ID “LI-W” and “NU-C”
+```{r}
+bird_subset <- bird_observations
+  
+```
+
