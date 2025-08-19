@@ -8,6 +8,7 @@ library(tidyverse)
 library(here)
 library(stringr)
 library(dplyr)
+library(lubridate)
 ```
 ## Read in data csv
 ```{r}
@@ -29,8 +30,8 @@ bird_subset <- bird_observations %>%
 Use left join(s) to update birds_subset so that it also *includes sites and taxalist* information. *For each join*, include an *explicit argument saying which variable you are joining by (even if it will just assume the correct one for you)*. Store the updated data frame as birds_left. Make sure to look at the output - is what it contains consistent with what you expected it to contain?
 ```{r}
 birds_left <- bird_subset %>% # using bird_subset data
-  left_join(sites, "site_id") %>% # left joining sites data, by matching "site_id" containing the same column in bird_subset
-  left_join(taxalist, "species_id") #left joining sites data, by matching "species_id" containing the same column in bird_subset
+  left_join(sites, by = "site_id") %>% # left joining sites data, by matching "site_id" containing the same column in bird_subset
+  left_join(taxalist, by = "species_id") #left joining sites data, by matching "species_id" containing the same column in bird_subset
 ```
 
 #Full join practice
@@ -42,7 +43,42 @@ birds_full <- full_join(bird_subset, sites)
 ```
 
 ## Task 2: Data wrangling and visualization with birds
-Starting with your birds object, rename the notes column to bird_obs_notes (so this doesn’t conflict with notes in the surveys dataset
+Starting with your *birds* object, *rename the notes column to bird_obs_notes* (so this doesn’t conflict with notes in the surveys dataset
+```{r}
+birds <- bird_observations %>% 
+  rename(bird_obs_notes = notes)
+# rename(NEW NAME = CURRENT COLUMN NAME)
+```
+
+# Then, create a subset that contains all observations in the *birds* dataset, joins the taxonomic, site and survey information to it.
+```{r}
+birds1 <- birds %>%
+  left_join(taxalist,by = "species_id") %>% 
+  left_join(sites, by = "site_id") %>% 
+  left_join(surveys, by = "survey_id")
+```
+# finally limited to *only columns survey_date, common_name, park_name, and bird_count.* You can decide the order that you want to create this in 
+```{r}
+birds2 <- birds1 %>% 
+  select(survey_date, common_name, park_name, bird_count)
+```
+
+# Use lubridate::month() to add a new column called survey_month, containing only the month number. Then, convert the month number to a factor (again within mutate())
+#Learn a new function on your own! Use *dplyr::relocate()* to move the new survey_month column to immediately after the survey_date column. You can do this in a separate code chunk, or pipe straight into it from your existing code.
+```{r}
+birds2 <- birds2 %>% 
+  mutate(survey_month =month(survey_date)) %>% 
+  relocate(survey_month)
+```
+# Find the total number of birds observed by park and month (i.e., you’ll group_by(park_name, survey_month))
+- Filter to only include parks “Lindo”, “Orme”, “Palomino” and “Sonrisa”
+```{r}
+Group_filter <- birds2 %>% 
+  group_by(park_name, survey_month) %>% 
+  summarise(total_bird_count = sum(bird_count)) %>% 
+  filter(park_name %in% c("Lindo", "Orme", "Palomino", "Sonrisa"))
+```
+
 
 
 
